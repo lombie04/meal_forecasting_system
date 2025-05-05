@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audit Access Verification</title>
+</head>
+<body>
+    <h2>Audit Access Required</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <label>Enter Access Code:</label><br>
+        <input type="password" name="access_code" required><br><br>
+        <button type="submit">Verify</button>
+    </form>
+</body>
+</html>

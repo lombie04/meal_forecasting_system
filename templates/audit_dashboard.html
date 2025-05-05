@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Dashboard | Meal Forecast System</title>
+    {% load static %}
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #003366;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            color: white;
+        }
+        .sidebar img {
+            width: 90%;
+            margin-bottom: 15px;
+        }
+        .sidebar a {
+            color: #ccc;
+            font-size: 20px;
+            font-weight: 500;
+            display: block;
+            margin-top: 6px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .logout-btn {
+            background: none;
+            color: #ccc;
+            border: none;
+            font-size: 20px;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+        }
+        .logout-btn:hover {
+            color: white;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div class="sidebar">
+        <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+        <a href="{% url 'audit_dashboard' %}" class="active">Audit Dashboard</a>
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+    <div class="main-content">
+        <h2>Audit Dashboard</h2>
+        <p style="font-weight: bold; color: #003366;">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <div class="card">
+            <h3>Filter Records</h3>
+            <form method="get" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <label for="date">Date:</label><br>
+                    <input type="date" id="date" name="date" value="{{ date_filter }}" style="padding: 8px;">
+                </div>
+                <div>
+                    <label for="chef">Chef Name:</label><br>
+                    <input type="text" id="chef" name="chef" placeholder="Chef Name" value="{{ chef_filter }}" style="padding: 8px;">
+                </div>
+                <div>
+                    <label for="product">Product Name:</label><br>
+                    <input type="text" id="product" name="product" placeholder="Product Name" value="{{ product_filter }}" style="padding: 8px;">
+                </div>
+                <div style="align-self: flex-end;">
+                    <button type="submit" style="padding: 8px 16px; background-color: #003366; color: white; border: none; border-radius: 5px;">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Stock Movement Logs</h3>
+            <ul>
+                {% for log in logs %}
+                    <li>
+                        {{ log.date }} {{ log.time }} — {{ log.product_name }}:
+                        {{ log.quantity_before }} → {{ log.quantity_after }} ({{ log.quantity_issued }} issued)
+                        by {{ log.issued_by }}
+                    </li>
+                {% empty %}
+                    <li>No logs yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>All Forecasts</h3>
+            <ul>
+                {% for forecast in forecasts %}
+                    <li>
+                        {{ forecast.date }} — {{ forecast.chef_name }}: {{ forecast.meal.name }},
+                        {{ forecast.number_of_guests }} guests = {{ forecast.forecasted_quantity }} {{ forecast.meal.unit_of_measure }}
+                    </li>
+                {% empty %}
+                    <li>No forecasts found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Placed Stock Orders</h3>
+            <ul>
+                {% for order in orders %}
+                    <li>
+                        {{ order.order_datetime }} — {{ order.chef_name }} ordered {{ order.quantity_requested }} {{ order.meal.unit_of_measure }} of {{ order.meal.name }}
+                    </li>
+                {% empty %}
+                    <li>No stock orders yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card">
+            <h3>Current Stock Levels</h3>
+            <ul>
+                {% for item in stock %}
+                    <li>{{ item.product_name }}: {{ item.available_quantity }} {{ item.unit_of_measure }}</li>
+                {% empty %}
+                    <li>No stock found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="footer">
+            © {{ year }} Management Training Bureau — @Lombie<br>
+            <div style="margin-top: 10px;">
+                <a href="mailto: matthewirksl04@gmail.com" title="Email" style="margin-right: 15px;">
+                    <img src="{% static 'images/Gmail_icon_.svg.png' %}" alt="Gmail" style="width: 24px; vertical-align: middle;">
+                </a>
+                <a href="https://www.linkedin.com/in/-matthew-irk--93134530a/" target="_blank" title="LinkedIn">
+                    <img src="{% static 'images/LinkedIn.svg.png' %}" alt="LinkedIn" style="width: 24px; vertical-align: middle;">
+                </a>
+            </div>
+            <div style="margin-top: 8px;">
+                📞 +48 511 588 120
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

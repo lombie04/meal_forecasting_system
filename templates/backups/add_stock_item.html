@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add Stock Item | Meal Forecast System</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            color: #333;
+            background: linear-gradient(135deg, #e6f0ff, #ffffff);
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        header img {
+            height: 60px;
+        }
+
+        h2 {
+            color: #003366;
+        }
+
+        .card {
+            background-color: #ffffffcc;
+            border: 1px solid #d9e2ef;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+        }
+
+        form button {
+            background-color: #007acc;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #005fa3;
+        }
+
+        a {
+            color: #003366;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background-color: #003366;
+            color: white;
+            padding: 10px 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dropbtn:hover {
+            background-color: #005fa3;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .dropdown-content a,
+        .dropdown-content form {
+            color: #003366;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content form {
+            margin: 0;
+        }
+
+        .dropdown-content button {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #003366;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .dropdown-content a:hover,
+        .dropdown-content button:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+    <div class="dropdown">
+        <button class="dropbtn">👤 {{ request.user.get_full_name|default:request.user.username }} ⏷</button>
+        <div class="dropdown-content">
+            <a href="{% url 'profile_view' %}">👤 Profile</a>
+            <a href="{% url 'edit_profile' %}">✏️ Edit Profile</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">🚪 Logout</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<h2>📦 Add New Stock Item</h2>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li style="color: green;">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">➕ Add Stock</button>
+    </form>
+</div>
+
+<hr style="margin-top: 30px;">
+<a href="{% url 'admin_dashboard' %}">⬅ Back to Admin Dashboard</a>
+
+</body>
+</html>
+

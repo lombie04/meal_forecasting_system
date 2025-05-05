@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Management | Meal Forecast System</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #e6f0ff, #ffffff);
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        header img {
+            height: 60px;
+        }
+
+        .tabs {
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .tabs button.active {
+            background-color: #005fa3;
+        }
+
+        .tab-content {
+            background-color: #ffffffcc;
+            border: 1px solid #d9e2ef;
+            padding: 20px;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #003366;
+            color: #fff;
+        }
+
+        form button {
+            background-color: #007acc;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #005fa3;
+        }
+
+        .message {
+            color: green;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+</header>
+<div class="tabs">
+    <button class="tablink active" onclick="openTab(event, 'view_stock')">View Stock</button>
+    <button class="tablink" onclick="openTab(event, 'add_stock')">Add Stock</button>
+</div>
+{% if messages %}
+    {% for message in messages %}
+        <div class="message">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div id="view_stock" class="tab-content">
+    <h2>Current Stock Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Product ID</th>
+                <th>Available Quantity</th>
+                <th>Units of Measurement</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in stock_items %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.product_id }}</td>
+                <td>{{ item.available_quantity }}</td>
+                <td>{{ item.get_unit_of_measurement_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No stock items available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="add_stock" class="tab-content" style="display:none;">
+    <h2>Add New Stock Item</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Stock</button>
+    </form>
+</div>
+
+<script>
+function openTab(evt, tabName) {
+    let tabcontent = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = 'none';
+    }
+
+    let tablinks = document.getElementsByClassName('tablink');
+    for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(' active', '');
+    }
+
+    document.getElementById(tabName).style.display = 'block';
+    evt.currentTarget.className += ' active';
+}
+</script>
+
+</body>
+</html>

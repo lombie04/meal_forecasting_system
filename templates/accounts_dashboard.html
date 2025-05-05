@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Accounts Dashboard | Meal Forecast System</title>
+    {% load static %}
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #003366;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            color: white;
+        }
+        .sidebar img {
+            width: 90%;
+            margin-bottom: 15px;
+        }
+        .sidebar h3 {
+            margin-bottom: 5px;
+        }
+        .sidebar a {
+            color: #ccc;
+            font-size: 18px;
+            display: block;
+            margin-top: 6px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .logout-btn {
+            background: none;
+            color: #ccc;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+        }
+        .logout-btn:hover {
+            color: white;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            padding: 15px;
+            text-align: center;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .card-img {
+            max-width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .card p {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #003366;
+        }
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin-left: 220px;
+        }
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 30px;
+            margin-bottom: 80px;
+        }
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+    <div class="sidebar">
+        <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+        <a href="{% url 'accounts_dashboard' %}" class="active">Accounts Dashboard</a>
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+    <div class="main-content">
+        <h2>Accounts Dashboard</h2>
+        <p style="font-weight: bold; color: #003366;">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <div class="card">
+            <h3>Filter by Date</h3>
+            <form method="get">
+                <input type="date" name="date" value="{{ date_filter }}">
+                <button type="submit">Filter</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>Meal Revenue Summary</h3>
+            <ul>
+                {% for meal, summary in meal_summary.items %}
+                    <li>{{ meal }} – {{ summary.quantity }} units – {{ summary.revenue }} USD</li>
+                {% endfor %}
+            </ul>
+            <p style="font-weight:bold; font-size:1.2em;">Total Revenue: {{ total_revenue }} USD</p>
+        </div>
+        <div class="card">
+            <h3>Stock Orders</h3>
+            <ul>
+                {% for order in orders %}
+                    <li>
+                        {{ order.order_datetime|date:"M d, Y H:i" }} — {{ order.meal.name }} —
+                        {{ order.quantity_requested }}g — Chef: {{ order.chef_name }}
+                    </li>
+                {% empty %}
+                    <li>No stock orders found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card">
+            <h3>Filter Revenue Data</h3>
+            <form method="get" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div>
+                    <label for="date">Date:</label><br>
+                    <input type="date" name="date" id="date" value="{{ request.GET.date }}">
+                </div>
+                <div>
+                    <label for="meal">Meal Name:</label><br>
+                    <input type="text" name="meal" id="meal" placeholder="Meal Name" value="{{ request.GET.meal }}">
+                </div>
+                <div>
+                    <label for="shift">Shift:</label><br>
+                    <select name="shift" id="shift">
+                        <option value="">All Shifts</option>
+                        <option value="breakfast" {% if request.GET.shift == 'breakfast' %}selected{% endif %}>Breakfast</option>
+                        <option value="lunch" {% if request.GET.shift == 'lunch' %}selected{% endif %}>Lunch</option>
+                        <option value="dinner" {% if request.GET.shift == 'dinner' %}selected{% endif %}>Dinner</option>
+                        <option value="night" {% if request.GET.shift == 'night' %}selected{% endif %}>Night Shift</option>
+                    </select>
+                </div>
+                <div style="align-self: flex-end;">
+                    <button type="submit">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <h3>Real-Time Revenue per Meal</h3>
+                <canvas id="revenueChart" height="100"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ meal_names|safe }},
+                    datasets: [{
+                        label: 'Revenue (PLN)',
+                        data: {{ revenues|safe }},
+                        backgroundColor: 'rgba(0, 102, 204, 0.6)',
+                        borderColor: 'rgba(0, 102, 204, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+        <div class="card">
+            <h3>Historical Revenue Trend</h3>
+            <canvas id="historyChart" height="100"></canvas>
+        </div>
+        <script>
+            const ctxHistory = document.getElementById('historyChart').getContext('2d');
+            const historyChart = new Chart(ctxHistory, {
+                type: 'line',
+                data: {
+                    labels: {{ revenue_dates|safe }},
+                    datasets: [{
+                        label: 'Daily Revenue (PLN)',
+                        data: {{ revenue_values|safe }},
+                        fill: true,
+                        borderColor: 'rgba(0, 153, 76, 1)',
+                        backgroundColor: 'rgba(0, 153, 76, 0.2)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+        <div class="footer">
+            © {{ year }} Management Training Bureau — @Lombie<br>
+            <div style="margin-top: 10px;">
+                <a href="mailto: matthewirksl04@gmail.com" title="Email" style="margin-right: 15px;">
+                    <img src="{% static 'images/Gmail_icon_.svg.png' %}" alt="Gmail" style="width: 24px; vertical-align: middle;">
+                </a>
+                <a href="https://www.linkedin.com/in/-matthew-irk--93134530a/" target="_blank" title="LinkedIn">
+                    <img src="{% static 'images/LinkedIn.svg.png' %}" alt="LinkedIn" style="width: 24px; vertical-align: middle;">
+                </a>
+            </div>
+            <div style="margin-top: 8px;">
+                📞 +48 511 588 120
+            </div>
+        </div>
+</body>
+</html>
+

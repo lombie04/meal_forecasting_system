@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>View Current Stock | Meal Forecast System</title>
+    {% load static %}
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff, #ffffff);
+        }
+
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #003366;
+            color: #fff;
+            padding-top: 20px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar img {
+            height: 80px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        .sidebar a,
+        .logout-btn {
+            display: block;
+            padding: 12px 20px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(100, 6, 6, 0.94);
+            transition: background-color 0.3s ease;
+            background: none;
+            border: none;
+            text-align: left;
+            width: 100%;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active,
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.87);
+            font-weight: bold;
+            padding: 12px 20px;
+            width: 220px;
+        }
+
+        .main-content {
+            margin-left: 210px;
+            padding: 30px;
+            flex: 1;
+            margin-bottom: 80px;
+        }
+
+        .card {
+            background-color: #ffffffcc;
+            border: 1px solid #d9e2ef;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            color: #003366;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            position: fixed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div class="sidebar">
+        <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+        <a href="{% url 'chef_dashboard' %}">Chef Dashboard</a>
+        <a href="{% url 'view_current_stock' %}" class="active">View Current Stock</a>
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+
+    <div class="main-content">
+        <h2>Current Stock Levels</h2>
+
+        <div class="card">
+            {% if stock %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Available Quantity</th>
+                            <th>Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in stock %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.available_quantity }}</td>
+                            <td>{{ item.unit_of_measure }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No stock data available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    © {{ year }} Management Training Bureau — @LOMBIE<br>
+    <div style="margin-top: 10px;">
+        <a href="mailto:matthewirksl04@gmail.com" title="Email" style="margin-right: 15px;">
+            <img src="{% static 'images/Gmail_icon_.svg.png' %}" alt="Gmail" style="width: 24px; vertical-align: middle;">
+        </a>
+        <a href="https://www.linkedin.com/in/-matthew-irk--93134530a/" target="_blank" title="LinkedIn">
+            <img src="{% static 'images/LinkedIn.svg.png' %}" alt="LinkedIn" style="width: 24px; vertical-align: middle;">
+        </a>
+    </div>
+    <div style="margin-top: 8px;">
+        +48 511 588 120
+    </div>
+</div>
+</body>
+</html>

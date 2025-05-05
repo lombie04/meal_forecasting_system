@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manage Users</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 30px;
+                background-color: #f0f2f5;
+            }
+            h2 {
+                color: #003366;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            th, td {
+                padding: 12px;
+                border: 1px solid #ccc;
+                text-align: left;
+            }
+            th {
+                background-color: #003366;
+                color: white;
+            }
+            a.button {
+                padding: 6px 12px;
+                background-color: #003366;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            a.button:hover {
+                background-color: #005999;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="popup-message" style="
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+        "></div>
+        <h2>Manage Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.userprofile.role }}</td>
+                    <td><a href="{% url 'edit_user_profile' user.id %}" class="button">Edit</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <script>
+            window.onload = function () {
+                var popup = document.getElementById('popup-message');
+                {% if messages %}
+                    let messageText = "";
+                    {% for message in messages %}
+                        messageText += "{{ message|escapejs }}\n";
+                    {% endfor %}
+                    popup.innerText = messageText;
+                    popup.style.display = 'block';
+                setTimeout(function () {
+                        popup.style.display = 'none';
+                    }, 4000);
+                {% endif %}
+            };
+        </script>
+    </body>
+</html>

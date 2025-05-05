@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Meal Forecast System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #003366;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            color: white;
+        }
+        .sidebar img {
+            width: 90%;
+            margin-bottom: 15px;
+        }
+        .sidebar h3 {
+            margin-bottom: 5px;
+        }
+        .sidebar a {
+            color: #ccc;
+            font-size: 18px;
+            font-weight: 500;
+            display: block;
+            margin-top: 6px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .logout-btn {
+            background: none;
+            color: #ccc;
+            border: none;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+        }
+        .logout-btn:hover {
+            color: white;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            padding: 15px;
+            text-align: center;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .card-img {
+            max-width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .card p {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #003366;
+        }
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 14px;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        #addUserModal, #editUserModal, #logModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            width: 400px;
+            max-width: 90%;
+            margin: 100px auto;
+            padding: 25px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .modal-content h3 {
+            color: #003366;
+            margin-top: 0;
+        }
+        .modal-content button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div style="text-align: center;">
+            <img src="{% static 'images/company_logo.png' %}" alt="Company Logo">
+        </div>
+        <div style="text-align: center;">
+            <h3>{{ request.user.username }}</h3>
+            <a href="{% url 'edit_user_profile' user.id %}">Edit Profiles</a>
+            <form method="POST" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+        <hr style="margin: 20px 0; border: 1px solid #335577;">
+    </div>
+    <div class="main-content">
+        <h2 style="color: #003366;">Admin Dashboard</h2>
+        <div class="card-grid">
+            <a href="{% url 'chef_dashboard' %}" class="card">
+                <img src="{% static 'images/Chef.png' %}" alt="Chef" class="card-img">
+                <p>Chef dashboard </p>
+            </a>
+            <a href="{% url 'accounts_dashboard' %}" class="card">
+                <img src="{% static 'images/accounts.png' %}" alt="Accounts" class="card-img">
+                <p>Accounts</p>
+            </a>
+            <a href="#" class="card" onclick="document.getElementById('auditModal').style.display='block'">
+                <img src="{% static 'images/audit.png' %}" alt="Audit" class="card-img">
+                <p>Audit</p>
+            </a>
+            <a href="{% url 'manager_dashboard' %}" class="card">
+                <img src="{% static 'images/manager.png' %}" alt="Manager" class="card-img">
+                <p>Hospitality</p>
+            </a>
+            <a href="{% url 'stock_management' %}" class="card">
+                <img src="{% static 'images/stock_management.png' %}" alt="Add Stock" class="card-img">
+                <p>Stock Management</p>
+            </a>
+            <div class="card" onclick="openModal()">
+                <img src="{% static 'images/add_user.png' %}" alt="Add User" class="card-img">
+                <p>Add User</p>
+            </div>
+            <a href="{% url 'delete_user_page' %}" class="card">
+                <img src="{% static 'images/delete_user.png' %}" alt="Delete User" class="card-img">
+                <p>Delete User</p>
+            </a>
+            <div class="card" onclick="openEditModal()">
+                <img src="{% static 'images/edit_user.png' %}" alt="Edit User" class="card-img">
+                <p>Edit User Role</p>
+            </div>
+            <a href="{% url 'system_summary_page' %}" class="card">
+                <img src="{% static 'images/system_view.png' %}" alt="System Summary" class="card-img">
+                <p>System Summary</p>
+            </a>
+            <div class="card" onclick="openLogModal()">
+                <img src="{% static 'images/logs.png' %}" alt="View Logs" class="card-img">
+                <p>View Logs</p>
+            </div>
+        </div>
+    </div>
+    <div id="addUserModal">
+        <div class="modal-content">
+            <h3>Create New User</h3>
+            <form method="POST" action="{% url 'admin_dashboard' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" style="padding: 8px 16px; background-color: #003366; color: white; border: none; border-radius: 5px;">Create</button>
+                <button type="button" onclick="closeModal()" style="padding: 8px 16px; background-color: #ccc; border: none; border-radius: 5px; float: right;">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <div id="editUserModal">
+        <div class="modal-content">
+            <h3>Edit User Role</h3>
+            <form method="POST" action="{% url 'edit_user' %}">
+                {% csrf_token %}
+                <label for="username">Select User:</label><br>
+                <select name="username" required style="width:100%; padding:8px; margin-top:5px; margin-bottom:15px;">
+                    {% for role, users in users_by_role.items %}
+                        {% for user in users %}
+                            <option value="{{ user.username }}">{{ user.username }} ({{ user.userprofile.role }})</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+                <label for="new_role">New Role:</label><br>
+                <select name="new_role" required style="width:100%; padding:8px; margin-top:5px;">
+                    <option value="admin">Admin</option>
+                    <option value="chef">Chef</option>
+                    <option value="audit">Audit</option>
+                    <option value="accounts">Accounts Officer</option>
+                    <option value="manager">Hospitality Manager</option>
+                </select>
+                <button type="submit" style="margin-top:20px; padding:8px 16px; background-color:#003366; color:white; border:none; border-radius:5px;">Update</button>
+                <button type="button" onclick="closeEditModal()" style="margin-top:20px; padding:8px 16px; background-color:#ccc; border:none; border-radius:5px; float:right;">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <div id="logModal">
+        <div class="modal-content" style="max-height:80vh; overflow-y:auto;">
+            <h3>System Logs</h3>
+            <button onclick="closeLogModal()" style="float:right; background:#ccc; border:none; padding:5px 10px; border-radius:5px;">Close</button>
+            <div style="margin-top: 20px;">
+                {% if system_logs %}
+                    <ul style="padding-left: 15px;">
+                        {% for log in system_logs %}
+                            <li style="margin-bottom:10px;">
+                                <strong>{{ log.user.username }}</strong> — 
+                                <em>{{ log.action }}</em><br>
+                                {{ log.description }}<br>
+                                <small style="color:gray;">{{ log.timestamp|date:"Y-m-d H:i:s" }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No logs found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        © {{ year }} Management Training Bureau — @Lombie<br>
+        <div style="margin-top: 10px;">
+            <a href="mailto: matthewirksl04@gmail.com" title="Email" style="margin-right: 15px;">
+                <img src="{% static 'images/Gmail_icon_.svg.png' %}" alt="Gmail" style="width: 24px; vertical-align: middle;">
+            </a>
+            <a href="https://www.linkedin.com/in/-matthew-irk--93134530a/" target="_blank" title="LinkedIn">
+                <img src="{% static 'images/LinkedIn.svg.png' %}" alt="LinkedIn" style="width: 24px; vertical-align: middle;">
+            </a>
+        </div>
+        <div style="margin-top: 8px;">📞 +48 511 588 120</div>
+    </div>
+    <script>
+        function openModal() {
+            document.getElementById('addUserModal').style.display = 'block';
+        }
+        function closeModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+        }
+        function openEditModal() {
+            document.getElementById('editUserModal').style.display = 'block';
+        }
+        function closeEditModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+        function openLogModal() {
+            document.getElementById('logModal').style.display = 'block';
+        }
+        function closeLogModal() {
+            document.getElementById('logModal').style.display = 'none';
+        }
+    </script>
+    <div id="auditModal" style="display:none; position:fixed; z-index:1000; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+        <div style="background:white; margin:10% auto; padding:30px; width:300px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+            <h3>Enter Audit Access Code</h3>
+            <form method="POST" action="{% url 'verify_audit_access' %}">
+                {% csrf_token %}
+                <input type="password" name="access_code" placeholder="Secret Code" required style="width:100%; padding:10px; margin-bottom:10px;"><br>
+                <button type="submit" style="background:#003366; color:white; padding:10px 15px; border:none;">Submit</button>
+                <button type="button" onclick="document.getElementById('auditModal').style.display='none'" style="margin-left:10px;">Cancel</button>
+            </form>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
