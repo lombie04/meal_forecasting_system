@@ -16,6 +16,9 @@ from django.db.models import Sum
 from datetime import datetime
 from system.models import SystemLog
 from collections import Counter, defaultdict
+from django.shortcuts import render
+def home(request):
+    return render(request, 'home.html')
 @login_required
 def role_based_redirect(request):
     user_profile = UserProfile.objects.get(user=request.user)
