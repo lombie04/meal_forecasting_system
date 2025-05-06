@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k-ik^0cfc12nj&6hm&k5h+&#&@u&#obtbb*s6d-^$a%dm3&w!k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['meal-forecasting-system.onrender.com', 'localhost', '127.0.0.1']
 
@@ -127,3 +127,8 @@ LOGIN_REDIRECT_URL = '/redirect/'
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 INSTALLED_APPS += ['django.contrib.humanize']
+
+import os
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
