@@ -85,7 +85,7 @@ class UserProfile(models.Model):
         ('accounts', 'Accounts Officer'),
         ('audit', 'Audit'),
         ('manager', 'Hospitality Manager')
-    ]   
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)  
     def __str__(self):
